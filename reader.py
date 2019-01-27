@@ -31,33 +31,30 @@ for repo in repos:
             # There can not be a change in signature if there are
             # no additions or no deletions
             if diff['added'] and diff["deleted"]:
-                # Find the changes that were on the same line
-                line_changes = []
                 for line_added in diff['added']:
                     for line_deleted in diff['deleted']:
-                        if line_added[0] == line_deleted[0]:
-                            line_changes.append((line_added, line_deleted))
-
-                for line in line_changes:
-                    addition = line[0][1].strip()
-                    deletion = line[1][1].strip()
-                    # Check if the line change is a method signature
-                    if re.search(signature_pattern, addition) and \
-                            re.search(signature_pattern, deletion):
-                        # Get the parameters of the method signatures
-                        params_new = re.search(parameters_pattern, addition)
-                        params_old = re.search(parameters_pattern, deletion)
-                        # If statement is not necessary but there is a danger if
-                        # we weren't able to find the method parameters
-                        if params_new and params_old:
-                            params_new = params_new.group(0).split(",")
-                            params_old = params_old.group(0).split(",")
-                            # If parameters were added then add to list
-                            if len(params_new) > len(params_old):
-                                signature_changes.append((commit.hash,
-                                                          modified_file.filename,
-                                                          deletion,
-                                                          addition))
+                        # Check if the line change is a method signature
+                        old_signature = re.search(signature_pattern, line_deleted[1])
+                        new_signature = re.search(signature_pattern, line_added[1])
+                        if new_signature and old_signature:
+                            method_name_added = re.search("^[^(]+", new_signature.group(0).strip())
+                            method_name_deleted = re.search("^[^(]+", old_signature.group(0).strip())
+                            # Check if the method names are the same
+                            if method_name_added.group(0) == method_name_deleted.group(0):
+                                # Get the parameters of the method signatures
+                                params_new = re.search(parameters_pattern, line_added[1])
+                                params_old = re.search(parameters_pattern, line_deleted[1])
+                                # If statement is not necessary but there is a danger if
+                                # we weren't able to find the method parameters
+                                if params_new and params_old:
+                                    params_new = params_new.group(0).split(",")
+                                    params_old = params_old.group(0).split(",")
+                                    # If parameters were added then add to list
+                                    if len(params_new) > len(params_old):
+                                        signature_changes.append((commit.hash,
+                                                                  modified_file.filename,
+                                                                  line_deleted[1],
+                                                                  line_added[1]))
 
     # With statement automatically closes file when finished
     with open("results/" + project_name + "_results.csv", "w") as results_file:
