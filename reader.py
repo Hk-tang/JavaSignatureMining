@@ -19,6 +19,7 @@ repos = sys.argv[1:]
 for repo in repos:
     project_name = ""
     signature_changes = []
+    print("Starting analysis of ", repo)
     for commit in RepositoryMining(repo, only_no_merge=True,
                                    only_modifications_with_file_types=[
                                        '.java']).traverse_commits():
@@ -56,7 +57,7 @@ for repo in repos:
                                                                       modified_file.filename,
                                                                       line_deleted[1].strip(),
                                                                       line_added[1].strip()))
-
+    print("Starting write to csv for", repo)
     # With statement automatically closes file when finished
     with open("results/" + project_name + "_results.csv", "w", newline="") \
             as results_file:
@@ -71,3 +72,4 @@ for repo in repos:
                                  change[1],
                                  change[2],
                                  change[3]])
+    print("Finished writing to csv for", repo)
