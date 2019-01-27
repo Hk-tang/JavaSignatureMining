@@ -49,10 +49,10 @@ for repo in repos:
                                     params_new = re.search(parameters_pattern, line_added[1])
                                     params_old = re.search(parameters_pattern, line_deleted[1])
                                     if params_new and params_old:
-                                        params_new = params_new.group(0).split(",")
-                                        params_old = params_old.group(0).split(",")
+                                        params_new = params_new.group(0).replace("(", "").replace(")", "").split(",")
+                                        params_old = params_old.group(0).replace("(", "").replace(")", "").split(",")
                                         # If parameters were added then add to list
-                                        if len(params_new) > len(params_old):
+                                        if len(params_new) > len(params_old) and all(params in params_new for params in params_old):
                                             signature_changes.append((commit.hash,
                                                                       modified_file.filename,
                                                                       line_deleted[1].strip(),
