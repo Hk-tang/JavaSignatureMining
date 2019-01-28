@@ -1,7 +1,10 @@
 Description:
 This is a small project intended to report the changes in method signatures of
 a Java repository. It uses the pydriller library for easy APIs into accessing
-Git information such as commit hashes and diffs.
+Git information such as commit hashes and diffs. It uses regex to determine if
+a line is a method signature and as such is limited to when the signature is on
+the same line and can not detect changes to parameters on different lines. It
+also can not detect method signatures that have implicit access modifiers.
 
 Installation and Usage:
 This project requires no building or installation
